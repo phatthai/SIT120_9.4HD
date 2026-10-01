@@ -1,0 +1,1559 @@
+/* 
+   Written mobile first. Everything above the media queries is
+   the phone layout; the two breakpoints at the bottom only
+   declare what actually changes.
+
+   Brand from Task 1.1P
+   #2A2E35  graphite   text, header, footer
+   #F4F1EC  off-white  alternating bands
+   #E63946  signal red one accent only, reserved for actions
+
+   Vue build (Task 9.3D): this is the one global stylesheet, imported
+   once in main.js, so every component shares the same rules.
+
+   Task 9.4HD: three ranges, matching the task sheet.
+   Phone     under 768px      every rule before the first media query
+   Tablet    768px to 1024px  BREAKPOINT 1
+   Desktop   above 1024px     BREAKPOINT 2
+   Dark mode is one block of overrides at the very end, all scoped
+   under .theme-dark, so the light rules above kept their shape.
+
+   #C42F3C  deeper red, used behind text (header, buttons). A 9.4HD
+            contrast check found off-white on #E63946 at 3.7:1, under
+            the 4.5:1 AA floor; on #C42F3C it is 4.88:1. #E63946 stays
+            for edges and focus rings, where 3:1 is the requirement.
+*/
+
+
+/* --- Reset ---- */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;   /* padding counts inside a declared width, otherwise every % width overflows once padding is added to it */
+}
+
+
+/* --- Typography --- */
+
+body {
+    font-family: "Roboto", Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.65;
+    color: #2A2E35;
+    background: #FFFFFF;
+}
+
+h1, h2, h3 {
+    font-family: "Oswald", Arial, sans-serif;
+    line-height: 1.15;
+}
+
+/* Both headings scale with the viewport rather than jumping at a
+   breakpoint. clamp() is used instead of a font-size inside each
+   media query because the awkward widths are between the
+   breakpoints, not at them. A 900px tablet got a heading sized
+   for a phone. */
+h1 {
+    font-size: clamp(1.9rem, 5vw, 3rem);
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+h2 {
+    font-size: clamp(1.4rem, 3vw, 1.9rem);
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+h3 {
+    font-size: 1.15rem;
+    font-weight: 500;
+    margin-bottom: 0.4rem;
+}
+
+/* 9.4HD caps every paragraph at the width .section-intro already used,
+   about 85 characters a line. The desktop container grew to make room
+   for the services grid, and running text should not grow with it. */
+p {
+    max-width: 42rem;
+    margin-bottom: 1rem;
+}
+
+/* Sits above an h1 as a quiet label. Small and uppercase so it
+   reads as orientation, not as a competing headline.
+   9.4HD contrast check: the light red #F26D77 passes on the dark
+   hero (4.69:1) but measured 2.9:1 on the white services and
+   contact pages, under the 4.5:1 AA floor for small text. The link
+   red is the default now (6.36:1 on white) and only the hero keeps
+   the light red. */
+.kicker {
+    font-family: "Oswald", Arial, sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #B32A35;
+    margin-bottom: 0.5rem;
+}
+
+.hero-section .kicker {
+    color: #F26D77;
+}
+
+/* One step up from body text, used for the opening sentence of a
+   page so the eye has an obvious entry point after the heading. */
+.lead {
+    font-size: 1.1rem;
+}
+
+.section-intro {
+    max-width: 42rem;   /* intro paragraphs are the longest lines on the
+                           page, so they get a tighter cap than the grid
+                           beneath them */
+    color: #4A4F58;
+}
+
+/* Hidden on screen but still read out by screen readers: the "Jobs"
+   heading on the services page and the line in the header that
+   announces every change to the quote. */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+
+/* --- Images -- */
+
+img {
+    max-width: 100%;    /* max-width rather than width, so a photo smaller
+                           than its slot is never stretched past its real
+                           pixel size and blurred */
+    height: auto;       /* recalculated from the new width, which is what
+                           keeps the aspect ratio */
+    display: block;     /* images are inline by default and sit on the text
+                           baseline, leaving a 4px gap under every one */
+}
+
+
+/* --- Layout container ----- */
+
+/* Percentage width gives the gutter on small screens; the rem
+   max-width stops lines running to 1900px on a wide monitor,
+   where they become hard to track back to the next line. */
+.container {
+    width: 90%;
+    max-width: 64rem;
+    margin: 0 auto;
+}
+
+
+/* --- App shell (Task 9.4HD) --- */
+
+/* The wrapper App.vue puts round everything. It carries theme-light
+   or theme-dark, so the page colour has to live here rather than on
+   body. min-height and the flex column hold the footer at the bottom
+   of a short page, so dark mode never leaves a white strip under it. */
+.app-shell {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: #FFFFFF;
+}
+
+.app-shell > main {
+    flex: 1;
+}
+
+
+/* --- Header and navigation --- */
+
+/* Sticky from 9.4HD, so the quote badge stays in view while jobs are
+   added further down the page. Deeper red than before: see the note at
+   the top of this file. */
+.site-header {
+    background: #C42F3C;
+    padding: 0.75rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+/* Phone: logo, tools and the Menu button share the top row. flex-wrap
+   lets the opened menu drop onto a full-width row of its own, and the
+   order values put the tools before the menu on that top row. */
+.header-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Scales down a little under 370px, the same clamp() idea as the
+   headings. At 320px the logo, badge, theme button and Menu needed
+   291px of a 288px row, so Menu dropped onto a second line. */
+.logo {
+    font-family: "Oswald", Arial, sans-serif;
+    font-size: clamp(1.3rem, 6.5vw, 1.5rem);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: #F4F1EC;
+    text-decoration: none;
+    margin-right: auto;   /* soaks up the spare width, pushing the rest right */
+}
+
+.header-tools {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    order: 1;
+}
+
+.menu-toggle {
+    order: 2;
+}
+
+/* Collapsed on a phone. 9.3D wrapped the three links instead, but with
+   the badge and the theme button added the header would have needed
+   three lines and pushed the hero headline down again. The Menu button
+   opens them as a vertical list. */
+.nav {
+    display: none;
+    flex-basis: 100%;
+    flex-direction: column;
+    order: 3;
+}
+
+.nav.is-open {
+    display: flex;
+}
+
+.nav a {
+    color: #F4F1EC;
+    text-decoration: none;
+    padding: 0.65rem 0;   /* full-width rows, at least 44px tall to tap */
+    border-top: 1px solid rgba(244, 241, 236, 0.3);
+}
+
+.nav a:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.35em;
+}
+
+/* RouterLink adds .active to the link for the page on screen
+   (linkActiveClass in router/index.js), replacing 9.3D's :class
+   binding. An underline instead of the old bottom border, because it
+   works in both the vertical phone list and the horizontal bar, and in
+   off-white because the old graphite line measured 2.5:1 on the red. */
+.nav a.active {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.35em;
+    font-weight: 500;
+}
+
+/* The badge and the two buttons share one height so the row lines up.
+   44px is the minimum comfortable tap target. */
+.quote-badge,
+.theme-toggle,
+.menu-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 2.75rem;
+    padding: 0 0.7rem;
+    font-family: "Oswald", Arial, sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.03em;
+    line-height: 1;
+    cursor: pointer;
+}
+
+/* The one light block on the bar, so the count is the first thing the
+   eye finds after the logo. */
+.quote-badge {
+    background: #F4F1EC;
+    color: #2A2E35;
+    text-decoration: none;
+}
+
+.quote-badge:hover {
+    background: #FFFFFF;
+}
+
+/* Hidden on a phone, where only the icon and the number fit beside the
+   other buttons. The link's aria-label still says "Quote, 2 jobs". */
+.badge-label {
+    display: none;
+}
+
+/* An empty outline at zero, solid graphite once a job is in. */
+.badge-count {
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.6rem;
+    height: 1.6rem;
+    padding: 0 0.3rem;
+    border: 1px solid #2A2E35;
+    font-size: 0.9rem;
+}
+
+.badge-count.is-filled {
+    background: #2A2E35;
+    color: #F4F1EC;
+    animation: badge-pop 0.3s ease-out;
+}
+
+/* Plays each time the count changes: AppHeader gives the span a :key
+   tied to the count, so Vue swaps in a fresh one. Not at zero, so the
+   page does not pop on first load. */
+@keyframes badge-pop {
+    0%   { transform: scale(0.6); }
+    60%  { transform: scale(1.15); }
+    100% { transform: scale(1); }
+}
+
+.theme-toggle,
+.menu-toggle {
+    background: transparent;
+    color: #F4F1EC;
+    border: 1px solid rgba(244, 241, 236, 0.7);
+}
+
+.theme-toggle:hover,
+.menu-toggle:hover {
+    background: rgba(244, 241, 236, 0.15);
+}
+
+/* Icon only until 1025px. Hidden with the clip method rather than
+   display: none, so the button still has a name for screen readers. */
+.toggle-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}
+
+/* Off-white focus ring in the header: a red one would vanish into the bar. */
+.site-header a:focus-visible,
+.site-header button:focus-visible {
+    outline: 3px solid #F4F1EC;
+    outline-offset: 2px;
+}
+
+
+/* --- Sections and bands --- */
+
+.section {
+    padding: 2.5rem 0;
+}
+
+/* Alternating background is the only thing separating one section
+   from the next. There are no divider lines, so the rhythm has to come
+   from the colour change plus the vertical padding. */
+.band {
+    background: #F4F1EC;
+}
+
+/* The photo moved out of an <img> and into the background. Once it sits
+   behind text and gets darkened it is decoration, not content, and an alt
+   description would only add noise, since the h1 already says what the
+   business does. Layer order is the trap: the FIRST layer listed paints on TOP, so
+   the gradient goes above the url(), not below it. Graphite rather than
+   pure black, because black over this blue-cast photo goes muddy grey. */
+.hero-section {
+    background-image: linear-gradient(rgba(42, 46, 53, 0.82), rgba(42, 46, 53, 0.82)), url("images/hero-handshake.jpg");
+    background-size: cover;        /* fills the box and crops the spill; contain would letterbox it instead */
+    background-position: center;   /* default is top left, which cropped the faces off on narrow screens */
+    background-repeat: no-repeat;
+    color: #F4F1EC;              /* h1 and .lead inherit this. .kicker and .phone keep their own red, which reads better on dark than it did on white */
+}
+
+/* --- Hero ---- */
+
+/* min-height rather than height, so a longer headline pushes the section
+   taller instead of overflowing it. Header height measured in DevTools
+   (Computed > height): 68px at every width in 9.4HD, now that the phone
+   menu folds away instead of stacking under the logo. The extra 6rem is
+   deliberate: a hero that fills the screen exactly gives no signal that
+   anything follows it.
+
+   Two declarations, not one: a browser that does not know svh throws the
+   second away and keeps the vh fallback. vh alone is measured with the
+   mobile address bar hidden, so a full-height hero overflows on load. */
+.hero {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1.5rem;
+    min-height: calc(100vh - 68px - 6rem);
+    min-height: calc(100svh - 68px - 6rem);
+}
+
+/* The photo used to take half the row. With it gone the text would run
+   the full 64rem container, straight across both faces. */
+.hero-text {
+    max-width: 30rem;
+}
+
+.phone {
+    display: inline-block;
+    font-family: "Oswald", Arial, sans-serif;
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #E63946;
+    text-decoration: none;
+}
+
+/* A real tel: link, not plain text, because the persona most likely
+   to be on a phone is the one mid-breakdown, and he should be able to tap
+   the number rather than memorise it. */
+.phone:hover,
+.phone-inline:hover {
+    text-decoration: underline;
+}
+
+.phone-inline {
+    font-weight: 500;
+    color: #B32A35;        /* was #E63946: 4.17:1 on the white contact page,
+                              under AA at this size. 6.36:1 now */
+    white-space: nowrap;   /* stops the number breaking across two lines
+                              mid-digits on a narrow screen */
+}
+
+
+/* --- Two-column split (text beside image, or text beside text) --- */
+
+.split {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+
+/* --- Cards --- */
+
+.cards {
+    display: grid;
+    grid-template-columns: 1fr;   /* single column is the phone default;
+                                     the breakpoints add columns */
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+    background: #FFFFFF;
+    border: 1px solid #D8D3CB;
+}
+
+/* The three photos arrived in three different shapes, which started
+   the card text at three different heights. A fixed ratio with
+   object-fit: cover crops them to match instead of stretching them. */
+.card img {
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+}
+
+/* A column that fills the card, so margin-top: auto on .card-actions
+   pins each button to the bottom edge. Cards in one row then line their
+   buttons up even when the descriptions differ in length. */
+.card-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 1.15rem;
+}
+
+.card-price {
+    margin-top: 0.75rem;
+    font-family: "Oswald", Arial, sans-serif;
+    font-weight: 500;
+}
+
+.card-actions {
+    margin-top: auto;
+    padding-top: 1rem;
+}
+
+/* A job already in the quote gets a frame, so the list can be checked
+   at a glance without reading every button. Outline rather than border,
+   so the red left edge on the services cards stays red. */
+.card.is-added {
+    outline: 2px solid #2A2E35;
+    outline-offset: 2px;
+}
+
+.card p {
+    margin-bottom: 0;   /* the card padding already supplies the gap, so the
+                           inherited paragraph margin would double it */
+}
+
+/* Text-only cards on the services page have no photo to anchor them,
+   so a red edge does the work the image does elsewhere. */
+.card-plain {
+    border-left: 4px solid #E63946;
+}
+
+
+/* --- Three short points --- */
+
+.points {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+
+.point p {
+    margin-bottom: 0;
+    color: #4A4F58;
+}
+
+
+/* --- Numbered booking steps --- */
+
+.steps {
+    margin: 0 0 1rem 1.15rem;
+}
+
+.steps li {
+    margin-bottom: 0.75rem;
+    padding-left: 0.25rem;
+}
+
+
+/* --- Responsive table ----- */
+
+/* Horizontal scroll was chosen over stacking each row into a block.
+   The whole point of this table is reading across a row to compare a
+   small-car price against a 4WD price, and stacking destroys exactly
+   that comparison. The wrapper scrolls; the page does not. */
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid #D8D3CB;
+    background: #FFFFFF;
+}
+
+.table-wrapper:focus-visible {
+    outline: 3px solid #E63946;   /* the wrapper is keyboard focusable so it
+                                     can be scrolled without a mouse */
+    outline-offset: 2px;
+}
+
+table {
+    width: 100%;
+    min-width: 42rem;   /* the floor that keeps six columns legible. Without
+                           it the browser squeezes them into 390px and
+                           "Pre-purchase inspection" wraps onto four lines */
+    border-collapse: collapse;
+}
+
+caption {
+    caption-side: top;
+    text-align: left;
+    font-family: "Oswald", Arial, sans-serif;
+    font-size: 1rem;
+    padding: 0.75rem 0.85rem;
+    border-bottom: 2px solid #E63946;
+}
+
+th,
+td {
+    padding: 0.7rem 0.85rem;
+    text-align: left;
+    border-bottom: 1px solid #D8D3CB;
+}
+
+thead th {
+    background: #2A2E35;
+    color: #F4F1EC;
+    font-family: "Oswald", Arial, sans-serif;
+    font-weight: 500;
+}
+
+/* The first cell of each row is a th, not a td, so a screen reader
+   announces the job name when reading any price in that row. */
+tbody th {
+    font-weight: 500;
+}
+
+/* Striping matters more here than on a narrow table: once the reader
+   is scrolling sideways, the stripe is what keeps their eye on the
+   correct row. */
+tbody tr:nth-child(even) {
+    background: #FAF8F5;
+}
+
+.table-note {
+    font-size: 0.875rem;
+    color: #4A4F58;   /* #6B6F77 passes on white but this note sits on the
+                         off-white band, where it measured 4.48:1, a hair
+                         under 4.5:1. 7.31:1 now */
+    margin-top: 0.75rem;
+}
+
+
+/* --- Booking form --------- */
+
+/* The grid sits on each <fieldset>, not on the <form>. A grid only lays
+   out its own direct children, and the fields are now nested one level
+   deeper inside the fieldsets. On the form it would have arranged the
+   two fieldsets and left everything inside them untouched. */
+.booking-form {
+    display: grid;
+    gap: 2rem;
+}
+
+.field-group {
+    display: grid;
+    grid-template-columns: 1fr;   /* one field per row on a phone; two-up
+                                     fields would leave each about 160px,
+                                     too narrow for a rego or a car model */
+    gap: 1.25rem;
+    border: 1px solid #D8D3CB;
+    padding: 1.25rem;
+    background: #FFFFFF;
+}
+
+/* Child combinator, not a descendant selector: the radio buttons live in
+   a nested fieldset with its own legend, and a plain "legend" rule would
+   dress that one up as a section heading too. */
+.field-group > legend {
+    font-family: "Oswald", Arial, sans-serif;
+    font-size: 1.05rem;
+    font-weight: 500;
+    padding: 0 0.5rem;
+}
+
+.field label {
+    display: block;   /* label above the input rather than beside it, so the
+                         field can use the full width on a phone */
+    font-weight: 500;
+    margin-bottom: 0.3rem;
+}
+
+.field input,
+.field select,
+.field textarea {
+    width: 100%;
+    padding: 0.65rem 0.75rem;
+    border: 1px solid #8A8780;   /* 9.4HD: the edge is the only thing that
+                                    shows where a white box starts on a
+                                    white form, so it needs the 3:1 that
+                                    WCAG asks of controls. #C9C3B9 was
+                                    1.75:1; this is 3.58:1 */
+    background: #FFFFFF;
+    font: inherit;   /* form controls do not inherit the body font, so
+                        without this the inputs fall back to the browser
+                        default and stop matching the rest of the page */
+}
+
+.field textarea {
+    resize: vertical;   /* horizontal resize would let the user drag the box
+                           wider than the layout */
+}
+
+.field input:focus-visible,
+.field select:focus-visible,
+.field textarea:focus-visible {
+    outline: 3px solid #E63946;
+    outline-offset: 1px;
+}
+
+/* 6.3D marked bad fields with :user-invalid and 8.4D moved to a class
+   set from plain JavaScript. The Vue form keeps the class: ContactForm.vue
+   binds it with :class whenever that field has an error, so the red box
+   and the message under it always come from the same errors object. */
+.field input.is-invalid,
+.field select.is-invalid,
+.field textarea.is-invalid {
+    border-color: #E63946;
+    background: #FDF3F4;
+}
+
+/* The message under each field. It only exists while that field has an
+   error (v-if in ContactForm.vue), so no empty row is reserved for it. */
+.field-feedback {
+    font-size: 0.875rem;
+    line-height: 1.4;
+    margin: 0.4rem 0 0;
+}
+
+.field-feedback.is-invalid {
+    color: #B32A35;   /* the darkened red already used for links, since
+                         #E63946 fails WCAG AA at this text size */
+}
+
+.field-hint {
+    font-size: 0.875rem;
+    color: #6B6F77;
+    margin: 0.4rem 0 0;
+}
+
+/* Radio buttons get their own fieldset because a <label> can only
+   describe one control, and this question applies to all three at once.
+   Border stripped so it still reads as a single field, not as a second
+   boxed section inside the first. */
+.choice-group {
+    border: none;
+    padding: 0;
+}
+
+.choice-group legend {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.choices {
+    display: flex;
+    flex-direction: column;   /* one option per row: side by side the tap
+                                 targets fall under the 44px minimum */
+    gap: 0.5rem;
+}
+
+.choice {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    cursor: pointer;   /* the whole row is clickable because the input sits
+                          inside the label, not just the 16px dot */
+}
+
+.choice input {
+    width: auto;       /* undoes the width: 100% above, which suits a text
+                          box but would stretch a radio dot across the row */
+    margin-top: 0.35rem;
+    flex-shrink: 0;
+}
+
+.form-actions {
+    display: flex;
+    flex-wrap: wrap;   /* the two buttons drop onto separate rows rather
+                          than shrinking below a readable label */
+    gap: 0.75rem;
+}
+
+/* Both messages sit under the buttons, where the eye is after pressing
+   Send. flex-basis: 100% pushes each one onto its own row. */
+.form-alert,
+.form-success {
+    flex-basis: 100%;
+    font-weight: 500;
+    margin: 0;
+}
+
+/* Tells the person who pressed Send at the bottom of a long form why
+   nothing happened, without making them scroll up to find out. */
+.form-alert {
+    color: #B32A35;
+}
+
+/* Green is the one colour outside the brand three, kept for "this worked". */
+.form-success {
+    color: #2C6E49;
+}
+
+
+/* --- Buttons and links ---- */
+
+a {
+    color: #B32A35;   /* darkened from the brand red purely for contrast:
+                         #E63946 on white fails WCAG at body text size */
+}
+
+.button {
+    display: inline-block;   /* an <a> is inline and ignores vertical
+                                padding, which would flatten the button */
+    background: #C42F3C;
+    color: #F4F1EC;          /* 9.4HD contrast check: the old graphite text
+                                on #E63946 measured 3.27:1, worse than white
+                                (4.17:1), and both fail AA at 1rem. Off-white
+                                on this deeper red measures 4.88:1 */
+    font-family: "Oswald", Arial, sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.03em;
+    text-decoration: none;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    cursor: pointer;
+}
+
+.button:hover {
+    background: #B32A35;   /* one step darker again, 5.65:1 */
+    color: #F4F1EC;
+}
+
+/* Switched off for the two seconds between a good submit and the reset,
+   so a double tap cannot send the same booking twice. */
+.button:disabled,
+.button-secondary:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.button:disabled:hover {
+    background: #C42F3C;
+    color: #F4F1EC;
+}
+
+/* Reset is deliberately quieter than submit. One click wipes the whole
+   form, so it should never be the button the eye lands on first. */
+.button-secondary {
+    display: inline-block;
+    background: #FFFFFF;
+    color: #2A2E35;
+    font-family: "Oswald", Arial, sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.03em;
+    text-decoration: none;
+    padding: 0.75rem 1.5rem;
+    border: 1px solid #C9C3B9;
+    cursor: pointer;
+}
+
+.button-secondary:hover {
+    background: #F4F1EC;
+}
+
+.text-link {
+    font-weight: 500;
+}
+
+/* Visible keyboard focus on every button, in the accent red. */
+.button:focus-visible,
+.button-secondary:focus-visible,
+.quote-toggle:focus-visible,
+.quote-remove:focus-visible {
+    outline: 3px solid #E63946;
+    outline-offset: 2px;
+}
+
+
+/* --- Quote list (Task 9.4HD) --- */
+
+/* Quieter than .button: there are eight of these across two pages, and
+   the red fill is kept for the one next step on each page. */
+.quote-toggle {
+    min-height: 2.75rem;
+    padding: 0.5rem 1rem;
+    background: #FFFFFF;
+    color: #2A2E35;
+    border: 1px solid #2A2E35;
+    font-family: "Oswald", Arial, sans-serif;
+    font-size: 0.95rem;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+}
+
+.quote-toggle:hover {
+    background: #F4F1EC;
+}
+
+/* Filled once the job is in the quote, so the button reads as on. */
+.quote-toggle.is-added {
+    background: #2A2E35;
+    color: #F4F1EC;
+}
+
+.quote-toggle.is-added:hover {
+    background: #3B4049;
+}
+
+/* Services page, phone: one column, quote card under the job cards. */
+.services-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.services-layout .cards {
+    margin-bottom: 0;
+}
+
+/* The summary card. A graphite top edge marks it as the running total
+   rather than one more job card. */
+.quote-summary {
+    background: #FFFFFF;
+    border: 1px solid #D8D3CB;
+    border-top: 4px solid #2A2E35;
+    padding: 1.25rem;
+}
+
+.quote-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.25rem 1rem;
+}
+
+.quote-title {
+    font-size: 1.35rem;
+    margin-bottom: 0;
+}
+
+.quote-total {
+    font-family: "Oswald", Arial, sans-serif;
+    font-size: 1.05rem;
+    margin-bottom: 0;
+}
+
+.quote-empty {
+    color: #4A4F58;
+    margin: 0.75rem 0 0;
+}
+
+.quote-list {
+    list-style: none;
+    margin-top: 1rem;
+    border-top: 1px solid #D8D3CB;
+}
+
+/* Name, price and Remove on one line. The name column takes the slack,
+   so the prices line up down the right-hand side. */
+.quote-list li {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.2rem 0;
+    border-bottom: 1px solid #D8D3CB;
+}
+
+.quote-price {
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+/* Looks like a link, as a small action inside a row, but keeps a 44px
+   tap target. */
+.quote-remove {
+    min-height: 2.75rem;
+    padding: 0 0.25rem;
+    background: none;
+    border: none;
+    color: #B32A35;
+    font: inherit;
+    font-size: 0.9rem;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.quote-note {
+    font-size: 0.875rem;
+    color: #6B6F77;
+    margin: 1rem 0 0;
+}
+
+.quote-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+/* On the contact page the card sits above the booking form. */
+.contact-quote {
+    margin-bottom: 2.5rem;
+}
+
+
+/* --- Contact page ---------- */
+
+/* Service area and hours sit under the page intro and above the form,
+   so a reader can check both before filling anything in. */
+.contact-info {
+    margin-top: 2.5rem;
+}
+
+
+/* --- Customer acknowledgement card --- */
+
+/* Rendered by ContactView.vue, not by ContactForm, which is why it stays on
+   screen when the form clears itself two seconds after a submit. The
+   heavy green edge matches .form-success, so the two read as one
+   answer. */
+.ack-card {
+    margin-top: 2.5rem;
+    background: #FFFFFF;
+    border: 1px solid #D8D3CB;
+    border-left: 6px solid #2C6E49;
+    padding: 1.5rem 1.25rem;
+}
+
+.ack-card h3 {
+    font-size: 1.35rem;
+    font-weight: 600;
+    margin-bottom: 0.6rem;
+}
+
+.ack-card > p {
+    color: #4A4F58;
+}
+
+.ack-card ul {
+    list-style: none;
+    border-top: 1px solid #D8D3CB;
+    padding-top: 1rem;
+}
+
+/* Label above value on a phone; the 768px breakpoint puts them side by
+   side. */
+.ack-card li {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.1rem;
+    margin-bottom: 0.75rem;
+}
+
+.ack-card li strong {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #6B6F77;
+}
+
+.ack-card li span {
+    overflow-wrap: anywhere;   /* a long email or a 600 character symptom
+                                  would otherwise push the card wider than
+                                  the screen */
+}
+
+
+/* --- Opening hours -------- */
+
+.hours {
+    list-style: none;
+    margin-bottom: 1rem;
+}
+
+.hours li {
+    border-bottom: 1px solid #D8D3CB;
+    padding: 0.5rem 0;
+}
+
+.day {
+    display: block;   /* day and hours stack on a phone; side by side they
+                         collide once the day name is long */
+    font-weight: 500;
+}
+
+
+/* --- Footer -- */
+
+.site-footer {
+    background: #2A2E35;
+    color: #F4F1EC;
+    padding: 2rem 0;
+    font-size: 0.9rem;
+}
+
+.footer-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.footer-brand {
+    font-family: "Oswald", Arial, sans-serif;
+    font-size: 1.1rem;
+    margin-bottom: 0.4rem;
+}
+
+.site-footer address {
+    font-style: normal;   /* <address> is the correct element semantically
+                             but browsers italicise it by default */
+    line-height: 1.7;
+}
+
+.site-footer a {
+    color: #F4F1EC;
+}
+
+/* Secondary navigation: the same three pages as the header, so someone
+   who has read to the bottom can move on without scrolling back up. */
+.footer-nav {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.footer-nav a {
+    padding: 0.3rem 0;   /* taller tap target than the bare line of text */
+    text-decoration: none;
+}
+
+.footer-nav a:hover {
+    text-decoration: underline;
+}
+
+.footer-note {
+    color: #A8ACB3;
+    margin-bottom: 0;
+}
+
+
+/* ===========================================================
+   BREAKPOINT 1: 768px and up
+
+   Chosen by widening the browser until the single column stopped
+   looking deliberate and started looking empty, which happened
+   just under 800px.
+   =========================================================== */
+
+@media (min-width: 768px) {
+
+    /* One row from here: logo, links, then the badge and the theme
+       button. The Menu button goes, the links stop being a hidden list,
+       and order: 0 puts every item back in source order, which is also
+       the order Tab moves through them. */
+    .header-inner {
+        flex-wrap: nowrap;
+        gap: 1.5rem;
+    }
+
+    .menu-toggle {
+        display: none;
+    }
+
+    .nav,
+    .nav.is-open {
+        display: flex;
+        flex-direction: row;
+        flex-basis: auto;
+        gap: 1.5rem;
+    }
+
+    .nav,
+    .header-tools {
+        order: 0;
+    }
+
+    .nav a {
+        padding: 0.25rem 0;
+        border-top: none;
+    }
+
+    /* Room for the word now, so the badge reads "Quote 2". */
+    .badge-label {
+        display: inline;
+    }
+
+    .section {
+        padding: 3.5rem 0;
+    }
+
+    .cards {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.75rem;
+    }
+
+    /* The points go straight to three columns while the cards only
+       reach two, because a point is two lines of text and survives a
+       third of a tablet; a card carries a photo and would not. */
+    .points {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+    }
+
+    /* Two fields per row once there is width for a rego and a car model
+       side by side. The long ones still span both columns so the radio
+       group, the textarea and the buttons keep their emphasis. */
+    .field-group {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.25rem 1.5rem;
+        padding: 1.75rem;
+    }
+
+    .field-wide {
+        grid-column: 1 / -1;
+    }
+
+    /* Label and value share a row here. The 11rem column is sized to the
+       longest label rather than a fraction, so the values all start at the
+       same x position instead of drifting with the text. */
+    .ack-card {
+        padding: 1.75rem;
+    }
+
+    .ack-card li {
+        grid-template-columns: 11rem 1fr;
+        gap: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .hours li {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .day {
+        display: inline;
+    }
+
+    .footer-inner {
+        flex-direction: row;
+        justify-content: space-between;
+    }
+
+    .footer-note {
+        text-align: right;
+    }
+
+    /* Tablet: the quote card runs the full width under the two columns
+       of jobs, so its contents go side by side inside it. The title and
+       total span the top, the list takes the wider left column, and the
+       note and buttons sit to its right. */
+    .quote-summary {
+        display: grid;
+        grid-template-columns: 3fr 2fr;
+        column-gap: 2rem;
+        align-items: start;
+    }
+
+    .quote-head {
+        grid-column: 1 / -1;
+    }
+
+    .quote-empty,
+    .quote-list {
+        grid-column: 1;
+    }
+
+    .quote-foot {
+        grid-column: 2;
+    }
+
+}
+
+
+/* ===========================================================
+   BREAKPOINT 2: above 1024px
+
+   The point where a photo beside its text stops being cramped.
+   Below this the image was too small to read and the paragraph
+   too narrow to scan, so both stayed stacked.
+
+   1025px rather than the 1024px used up to 9.3D. The task sheet
+   puts 1024px itself in the tablet range, and min-width: 1024px
+   would have handed that exact width (an iPad held sideways) the
+   desktop layout.
+   =========================================================== */
+
+@media (min-width: 1025px) {
+
+    /* Wider than the 64rem used up to 9.3D. At 64rem the services page
+       had about 720px left beside the quote card, which squeezed three
+       job cards to 218px and wrapped their buttons onto two lines. */
+    .container {
+        max-width: 72rem;
+    }
+
+    .section {
+        padding: 4.5rem 0;
+    }
+
+    /* With the text capped at 30rem and anchored left, the overlay can
+       grade instead of covering evenly: dark enough to read against on
+       the left, light enough on the right to leave the two faces (the
+       reason this photo is worth using) actually visible. */
+    .hero-section {
+        background-image:
+            linear-gradient(to right,
+                rgba(42, 46, 53, 0.94) 0%,
+                rgba(42, 46, 53, 0.85) 40%,
+                rgba(42, 46, 53, 0.40) 75%,
+                rgba(42, 46, 53, 0.25) 100%),
+            url("images/hero-handshake.jpg");
+    }
+
+    /* .hero is not in this rule: it holds one child now that the photo
+       moved into the background, so there is no row to build, and
+       flex: 1 would stretch .hero-text past its 30rem cap and run the
+       headline straight across both faces. */
+    .split {
+        flex-direction: row;
+        align-items: center;
+        gap: 3rem;
+    }
+
+    /* Explicit halves rather than flex: 1. A flex-basis of 0 let the
+       photo keep its intrinsic ~1200px and left the text about 150px
+       wide, one word per line. min-width: 0 is what actually allows the
+       shrink, since flex items default to min-width: auto and refuse to
+       go below their own content size. */
+    .split > * {
+        flex: 1 1 50%;
+        min-width: 0;
+    }
+
+    /* Two text columns rather than text beside a photo, so the headings
+       line up at the top instead of each column centring on its own. */
+    .contact-info {
+        align-items: flex-start;
+    }
+
+    .cards {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+    }
+
+    /* Services: jobs on the left, the quote card beside them in a fixed
+       17rem column. minmax(0, 1fr) lets the job column shrink below the
+       width of its longest word instead of pushing the card off screen. */
+    .services-layout {
+        grid-template-columns: minmax(0, 1fr) 17rem;
+        align-items: start;
+    }
+
+    /* As many columns as fit at 15rem or wider: two on a small laptop,
+       three from about 1210px. A fixed repeat(3, 1fr) gave 185px cards
+       at 1025px. */
+    .services-layout .cards {
+        grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+    }
+
+    /* Back to one column inside the card, which has no room for the
+       tablet's side by side at 17rem. Sticky, so the running total stays
+       in view while the reader scrolls through the jobs. */
+    .services-layout .quote-summary {
+        display: block;
+        position: sticky;
+        top: 5.5rem;   /* the 68px header plus a 20px gap */
+    }
+
+    /* At 17rem a job name, its price and Remove do not fit on one line,
+       so the name takes the first line and the other two share the next. */
+    .services-layout .quote-list li {
+        grid-template-columns: 1fr auto;
+        row-gap: 0;
+        padding-top: 0.6rem;
+    }
+
+    .services-layout .quote-item {
+        grid-column: 1 / -1;
+    }
+
+    /* Room for the word beside the sun or moon. */
+    .toggle-label {
+        position: static;
+        width: auto;
+        height: auto;
+        overflow: visible;
+        clip: auto;
+    }
+
+}
+
+/* ===========================================================
+   DARK MODE (Task 9.4HD)
+
+   App.vue puts theme-dark on the outer wrapper when isDarkMode is
+   true in the theme store, so every rule here starts with
+   .theme-dark and only changes colours. Nothing moves or resizes
+   when the theme flips, at any of the three widths.
+
+   Palette, every text pair checked against WCAG AA:
+   #1B1D21  page            #ECE8E1 text on it 13.8:1
+   #23262B  band            #F26D77 links 5.23:1 on the band
+   #2A2E35  cards, header   #B9BDC4 muted text 7.23:1 on cards
+   #16181C  footer          #A8ACB3 hints 5.98:1 on cards
+   #3D424B  dividers        #7BC89A success green 6.86:1 on cards
+   The light red #F26D77 replaces #B32A35 for links and errors,
+   since the darker red drops to about 2:1 on these greys.
+   =========================================================== */
+
+.theme-dark {
+    background: #1B1D21;
+    color: #ECE8E1;
+    color-scheme: dark;   /* dark date picker, dropdown and scrollbars */
+}
+
+/* The page scrollbar and the strip a phone shows when it bounces past
+   the top belong to <html>, outside the wrapper. :has() lets the root
+   pick up the class from inside it. */
+:root:has(.theme-dark) {
+    background: #1B1D21;
+    color-scheme: dark;
+}
+
+/* Graphite bar with a red line along the bottom, so the brand colour
+   stays without a full red bar glaring on a dark page. box-shadow, not
+   border, so the header keeps its 68px. */
+.theme-dark .site-header {
+    background: #2A2E35;
+    box-shadow: inset 0 -3px 0 #E63946;
+}
+
+.theme-dark .band {
+    background: #23262B;
+}
+
+.theme-dark .site-footer {
+    background: #16181C;
+    box-shadow: inset 0 1px 0 #3D424B;
+}
+
+/* Surfaces: one step lighter than the page, so a card still reads as
+   a card without the light theme's white. */
+.theme-dark .card,
+.theme-dark .quote-summary,
+.theme-dark .field-group,
+.theme-dark .table-wrapper,
+.theme-dark .ack-card {
+    background: #2A2E35;
+    border-color: #3D424B;
+}
+
+/* These three come after the rule above on purpose. border-color sets
+   all four sides, so each coloured edge has to be put back. */
+.theme-dark .card-plain {
+    border-left-color: #E63946;
+}
+
+.theme-dark .quote-summary {
+    border-top-color: #ECE8E1;
+}
+
+.theme-dark .ack-card {
+    border-left-color: #4F9D72;
+}
+
+.theme-dark .card.is-added {
+    outline-color: #ECE8E1;
+}
+
+.theme-dark th,
+.theme-dark td,
+.theme-dark .quote-list,
+.theme-dark .quote-list li,
+.theme-dark .ack-card ul,
+.theme-dark .hours li {
+    border-color: #3D424B;
+}
+
+.theme-dark thead th {
+    background: #1B1D21;
+    color: #ECE8E1;
+}
+
+.theme-dark tbody tr:nth-child(even) {
+    background: #30343B;
+}
+
+/* Text */
+.theme-dark .section-intro,
+.theme-dark .point p,
+.theme-dark .quote-empty,
+.theme-dark .ack-card > p {
+    color: #B9BDC4;
+}
+
+.theme-dark .table-note,
+.theme-dark .field-hint,
+.theme-dark .quote-note,
+.theme-dark .ack-card li strong {
+    color: #A8ACB3;
+}
+
+.theme-dark .kicker,
+.theme-dark .text-link,
+.theme-dark .phone-inline,
+.theme-dark .quote-remove,
+.theme-dark .field-feedback.is-invalid,
+.theme-dark .form-alert {
+    color: #F26D77;
+}
+
+.theme-dark .form-success {
+    color: #7BC89A;
+}
+
+/* Form */
+.theme-dark .field input,
+.theme-dark .field select,
+.theme-dark .field textarea {
+    background: #1B1D21;
+    color: #ECE8E1;
+    border-color: #7C828C;   /* 3.52:1 against the card around it */
+}
+
+.theme-dark .field input.is-invalid,
+.theme-dark .field select.is-invalid,
+.theme-dark .field textarea.is-invalid {
+    background: #3A2428;
+    border-color: #F26D77;
+}
+
+/* Buttons. The red .button keeps its colours, which pass on any of
+   these greys. The two quiet buttons swap to light on dark. */
+.theme-dark .button-secondary {
+    background: transparent;
+    color: #ECE8E1;
+    border-color: #9AA0A9;
+}
+
+.theme-dark .button-secondary:hover,
+.theme-dark .quote-toggle:hover {
+    background: #3D424B;
+}
+
+.theme-dark .quote-toggle {
+    background: transparent;
+    color: #ECE8E1;
+    border-color: #ECE8E1;
+}
+
+.theme-dark .quote-toggle.is-added {
+    background: #ECE8E1;
+    color: #1B1D21;
+}
+
+.theme-dark .quote-toggle.is-added:hover {
+    background: #FFFFFF;
+}
+
+/* Focus rings move to the light red: #E63946 drops to 3.27:1 on the
+   card grey, just over the line, and #F26D77 gives 4.69:1. */
+.theme-dark .button:focus-visible,
+.theme-dark .button-secondary:focus-visible,
+.theme-dark .quote-toggle:focus-visible,
+.theme-dark .quote-remove:focus-visible,
+.theme-dark .table-wrapper:focus-visible,
+.theme-dark .field input:focus-visible,
+.theme-dark .field select:focus-visible,
+.theme-dark .field textarea:focus-visible {
+    outline-color: #F26D77;
+}
+
+
+/* --- Theme change --- */
+
+/* A short fade on colours only, so pressing the toggle reads as one
+   smooth change instead of a flash. Nothing that moves is animated. */
+.app-shell,
+.app-shell * {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Visitors who have asked their device for less motion get the change
+   instantly, and no pop on the quote badge. !important because the
+   badge animation sits on a more specific selector. */
+@media (prefers-reduced-motion: reduce) {
+    .app-shell,
+    .app-shell * {
+        transition: none !important;
+        animation: none !important;
+    }
+}
